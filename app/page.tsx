@@ -1,3 +1,5 @@
+import { dashboardData } from '../data/mockData';
+
 export default function Dashboard() {
   return (
     <div className="flex h-screen w-full bg-[#fdfaf1] overflow-hidden font-sans text-slate-900">
@@ -34,10 +36,10 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* 2. Middle Main Area - Added px-[0.3cm] to prevent widgets from sticking to sidebars */}
+      {/* 2. Middle Main Area */}
       <main className="flex-1 flex flex-col py-8 px-[0.3cm] overflow-y-auto">
         
-        {/* Header - Stays inside the new padding */}
+        {/* Header - Now using dynamic User data */}
         <header className="flex flex-col mb-10">
           <div className="relative w-full max-w-xl mb-8">
             <span className="absolute left-5 top-3.5 opacity-30 text-sm">🔍</span>
@@ -48,44 +50,51 @@ export default function Dashboard() {
             />
           </div>
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-slate-900 leading-tight">Good morning, Team</h1>
-            <p className="text-slate-500 mt-1 text-base italic">Ready to master Java & OS today?</p>
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 leading-tight">
+              {dashboardData.user.greeting}, {dashboardData.user.name}
+            </h1>
+            <p className="text-slate-500 mt-1 text-base italic">{dashboardData.user.message}</p>
           </div>
         </header>
 
-        {/* 3. The Widget Grid - Now perfectly centered with 0.3cm gaps all around */}
+        {/* 3. The Widget Grid - Fully mapped from mockData */}
         <div className="grid grid-cols-3 gap-[0.3cm] content-start w-full">
-          <div className="aspect-square bg-[#fce991]/90 rounded-[3rem] p-8 flex flex-col justify-between shadow-sm border border-black/5 min-w-0">
-            <h3 className="text-xl font-bold text-slate-900">Java OOPS</h3>
-            <div className="text-5xl font-black italic text-slate-900">85%</div>
-            <p className="text-[10px] font-black opacity-40 uppercase tracking-widest text-slate-900">Polymorphism</p>
-          </div>
-          
-          <div className="aspect-square bg-[#fbcfe8]/90 rounded-[3rem] p-8 flex flex-col justify-between shadow-sm border border-black/5 min-w-0">
-            <h3 className="text-xl font-bold text-slate-900">DSA Summary</h3>
-            <div className="w-full h-12 bg-white/40 rounded-2xl mt-4"></div>
-            <p className="text-[10px] font-black opacity-40 uppercase tracking-widest text-slate-900">HashMaps</p>
-          </div>
+          {dashboardData.widgets.map((widget) => (
+            <div 
+              key={widget.id} 
+              style={{ backgroundColor: widget.color }}
+              className="aspect-square rounded-[3rem] p-8 flex flex-col justify-between shadow-sm border border-black/5 min-w-0"
+            >
+              <h3 className="text-xl font-bold text-slate-900">{widget.title}</h3>
+              
+              {/* Conditional Rendering: Check if it's a bar chart or text value */}
+              {widget.type === 'bars' ? (
+                <div className="flex items-end gap-2.5 h-16">
+                  {widget.stats?.map((val, i) => (
+                    <div 
+                      key={i} 
+                      style={{ height: `${val}%` }} 
+                      className="w-3 bg-slate-900/30 rounded-full"
+                    ></div>
+                  ))}
+                </div>
+              ) : widget.type === 'chart' ? (
+                <div className="w-full h-12 bg-white/40 rounded-2xl mt-4"></div>
+              ) : (
+                <div className="text-5xl font-black italic text-slate-900 leading-none">
+                  {widget.value}
+                </div>
+              )}
 
-          <div className="aspect-square bg-[#dcfce7]/90 rounded-[3rem] p-8 flex flex-col justify-between shadow-sm border border-black/5 min-w-0">
-            <h3 className="text-xl font-bold text-slate-900">OS Status</h3>
-            <div className="flex items-end gap-2.5 h-16">
-              <div className="w-3 bg-green-600 h-full rounded-full"></div>
-              <div className="w-3 bg-green-400 h-10 rounded-full"></div>
-              <div className="w-3 bg-green-500 h-14 rounded-full"></div>
+              <p className="text-[10px] font-black opacity-40 uppercase tracking-widest text-slate-900">
+                {widget.footer}
+              </p>
             </div>
-            <p className="text-[10px] font-black opacity-40 uppercase tracking-widest text-slate-900">Memory</p>
-          </div>
-
-          <div className="aspect-square bg-[#dbeafe]/90 rounded-[3rem] p-8 flex flex-col justify-between shadow-sm border border-black/5 min-w-0">
-            <h3 className="text-xl font-bold text-slate-900">Sessions</h3>
-            <div className="text-4xl font-black italic text-slate-900">03:45 h</div>
-            <p className="text-[10px] font-black opacity-40 uppercase tracking-widest text-slate-900">Mock Practice</p>
-          </div>
+          ))}
         </div>
       </main>
 
-      {/* 3. Right Sidebar (Calendar) */}
+      {/* 3. Right Sidebar */}
       <aside className="w-[360px] bg-stone-50 border-l border-stone-200 flex flex-col shrink-0 p-8">
         <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm mb-10">
           <div className="flex items-center justify-between mb-8">
@@ -105,9 +114,15 @@ export default function Dashboard() {
         </div>
         
         <h2 className="text-xl font-bold text-slate-900 mb-6 px-2 underline decoration-indigo-200 underline-offset-8">Upcoming</h2>
-        <div className="p-6 rounded-[2.5rem] bg-white border border-stone-100 shadow-sm">
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">10:00 AM</p>
-          <h6 className="text-base font-bold text-slate-900">Java Mock Interview</h6>
+        
+        {/* Mapped Upcoming Sessions */}
+        <div className="flex flex-col gap-3">
+          {dashboardData.upcoming.map((session) => (
+            <div key={session.id} className="p-6 rounded-[2.5rem] bg-white border border-stone-100 shadow-sm">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{session.time}</p>
+              <h6 className="text-base font-bold text-slate-900">{session.title}</h6>
+            </div>
+          ))}
         </div>
       </aside>
 
